@@ -1,0 +1,19 @@
+using System;
+using System.Collections.Generic;
+
+namespace ThreadUnit
+{
+    internal sealed class TestResult
+    {
+        public TestResult()
+        {
+            Exceptions = new List<Exception>();
+        }
+
+        internal List<Exception> Exceptions { get; set; }
+
+        internal bool Failed { get { return Exceptions.Count != 0; } }
+
+        public int Timeouts { get; set; }
+    }
+}

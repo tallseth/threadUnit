@@ -1,0 +1,19 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace ThreadUnit
+{
+    public static class ThreadTest
+    {
+        public static void SimultaneousThreads(Action toTest, int numberOfThreads)
+        {
+            SimultaneousThreads(toTest, numberOfThreads, TimeSpan.FromHours(1));
+        }
+
+
+        public static void SimultaneousThreads(Action toTest, int numberOfThreads, TimeSpan threadTimeout)
+        {
+            SimultaneousThreadTest.GetInstance(toTest, numberOfThreads, threadTimeout);
+        }
+    }
+}
