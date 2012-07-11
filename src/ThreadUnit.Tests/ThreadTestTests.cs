@@ -11,26 +11,52 @@ namespace ThreadUnit.Tests
     [TestFixture]
     public class ThreadTestTests
     {
+        private HitCounter counter_;
+
+        [SetUp]
+        public void Setup()
+        {
+            counter_ = new HitCounter();
+        }
+
         [Test]
         public void ThreadTestFailsForUnsafeOperations()
         {
+            var numberOfThreads = 1000;
             try
             {
                 var lockObject = new object();
-                ThreadTest.SimultaneousThreads(() => ThreadUnsafeOperation(lockObject), 1000);
+                ThreadTest.SimultaneousThreads(() => { counter_.Touch(); ThreadUnsafeOperation(lockObject); }, numberOfThreads);
                 Assert.Fail();
             }
             catch (ThreadTestFailureException)
             {
                 
             }
+
+            Assert.That(counter_.GetHits(), Is.EqualTo(numberOfThreads));
         }
 
         [Test]
         public void ThreadTestPassesOnSafeOperations()
         {
-            int i = 0;
-            ThreadTest.SimultaneousThreads(() => i++, 10);
+            ThreadTest.SimultaneousThreads(() => counter_.Touch(), 10);
+            Assert.That(counter_.GetHits(), Is.EqualTo(10));
+        }
+
+        [Test]
+        public void TestFailsIfActionFails()
+        {
+            try
+            {
+                ThreadTest.SimultaneousThreads(() => { throw new Exception(); }, 2);
+                Assert.Fail();
+            }
+            catch (ThreadTestFailureException)
+            {
+                
+            }
+
         }
 
         [Test]
@@ -39,18 +65,19 @@ namespace ThreadUnit.Tests
         {
             try
             {
-                ThreadTest.SimultaneousThreads(()=>Thread.Sleep(TimeSpan.FromSeconds(5)), 2, TimeSpan.FromSeconds(1));
+                ThreadTest.SimultaneousThreads(() => { counter_.Touch();  Thread.Sleep(TimeSpan.FromSeconds(5)); }, 2, TimeSpan.FromSeconds(1));
                 Assert.Fail();
             }
             catch(ThreadTestTimeoutException)
             {
                 
             }
+            Assert.That(counter_.GetHits(), Is.EqualTo(10));
         }
 
-        private void ThreadUnsafeOperation(object toBreak)
+        private void ThreadUnsafeOperation(object toLock)
         {
-            var entered = Monitor.TryEnter(toBreak, 5);
+            var entered = Monitor.TryEnter(toLock, 5);
             try
             {
                 if(entered)
@@ -60,8 +87,24 @@ namespace ThreadUnit.Tests
             }
             finally
             {
-                Monitor.Exit(toBreak);
+                Monitor.Exit(toLock);
             }
+        }
+    }
+
+    internal class HitCounter
+    {
+        private int hits_ = 0;
+
+        internal void Touch()
+        {
+            hits_++;
+            Console.WriteLine("touched " + hits_);
+        }
+
+        internal int GetHits()
+        {
+            return hits_;
         }
     }
 }
