@@ -13,7 +13,7 @@ namespace ThreadUnit
 
         public static void SimultaneousThreads(Action toTest, int numberOfThreads, TimeSpan threadTimeout)
         {
-            SimultaneousThreadTest.GetInstance(toTest, numberOfThreads, threadTimeout);
+            TestRunner.GetInstance().RunTest(SimultaneousThreadTest.GetInstance(toTest, numberOfThreads, threadTimeout));
         }
     }
 }

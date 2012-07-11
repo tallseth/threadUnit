@@ -51,7 +51,7 @@ namespace ThreadUnit
         {
             try
             {
-                toTest_.Invoke();
+                toTest_();
             }
             catch(ThreadAbortException)
             {

@@ -22,7 +22,7 @@ namespace ThreadUnit.Tests
         [Test]
         public void ThreadTestFailsForUnsafeOperations()
         {
-            var numberOfThreads = 1000;
+            var numberOfThreads = 10;
             try
             {
                 var lockObject = new object();
@@ -72,7 +72,7 @@ namespace ThreadUnit.Tests
             {
                 
             }
-            Assert.That(counter_.GetHits(), Is.EqualTo(10));
+            Assert.That(counter_.GetHits(), Is.EqualTo(2));
         }
 
         private void ThreadUnsafeOperation(object toLock)
