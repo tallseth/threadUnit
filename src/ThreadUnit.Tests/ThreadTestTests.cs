@@ -52,9 +52,9 @@ namespace ThreadUnit.Tests
                 ThreadTest.SimultaneousThreads(() => { throw new Exception(); }, 2);
                 Assert.Fail();
             }
-            catch (ThreadTestFailureException)
+            catch (ThreadTestFailureException ex)
             {
-                
+                Assert.That(ex.Errors.Length, Is.EqualTo(2));
             }
 
         }

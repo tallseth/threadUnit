@@ -21,7 +21,7 @@ namespace ThreadUnit
                 throw ThreadTestTimeoutException.GetInstance();
 
             if (result.Failed)
-                throw ThreadTestFailureException.GetInstance();
+                throw ThreadTestFailureException.GetInstance(result.Exceptions);
         }
     }
 }
