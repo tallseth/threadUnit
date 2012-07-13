@@ -60,19 +60,20 @@ namespace ThreadUnit.Tests
         }
 
         [Test]
-        [Timeout(3000)]
+        [Timeout(10000)]
         public void InfiniteThreadsDoNotWaitForever()
         {
+            const int numThreads = 3;
             try
             {
-                ThreadTest.SimultaneousThreads(() => { counter_.Touch();  Thread.Sleep(TimeSpan.FromSeconds(5)); }, 2, TimeSpan.FromSeconds(1));
+                ThreadTest.SimultaneousThreads(() => { counter_.Touch();  Thread.Sleep(TimeSpan.FromSeconds(30)); }, numThreads, TimeSpan.FromSeconds(1));
                 Assert.Fail();
             }
-            catch(ThreadTestTimeoutException)
+            catch(ThreadTestTimeoutException ex)
             {
-                
+                Assert.That(ex.Timeouts, Is.EqualTo(numThreads));
             }
-            Assert.That(counter_.GetHits(), Is.EqualTo(2));
+            Assert.That(counter_.GetHits(), Is.EqualTo(numThreads));
         }
 
         private void ThreadUnsafeOperation(object toLock)

@@ -2,11 +2,18 @@ namespace ThreadUnit.Exceptions
 {
     public class ThreadTestTimeoutException : ThreadUnitException
     {
-        private ThreadTestTimeoutException(){}
+        private readonly int timeouts_;
 
-        internal static ThreadTestTimeoutException GetInstance()
+        private ThreadTestTimeoutException(int timeouts)
         {
-            return new ThreadTestTimeoutException();
+            timeouts_ = timeouts;
         }
+
+        internal static ThreadTestTimeoutException GetInstance(int numberOfTimeouts)
+        {
+            return new ThreadTestTimeoutException(numberOfTimeouts);
+        }
+
+        public int Timeouts { get { return timeouts_; } }
     }
 }

@@ -18,7 +18,7 @@ namespace ThreadUnit
             var result = toRun.Execute();
 
             if (result.Timeouts > 0)
-                throw ThreadTestTimeoutException.GetInstance();
+                throw ThreadTestTimeoutException.GetInstance(result.Timeouts);
 
             if (result.Failed)
                 throw ThreadTestFailureException.GetInstance(result.Exceptions);
