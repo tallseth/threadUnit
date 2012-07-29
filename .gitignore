@@ -13,3 +13,6 @@ _ReSharper*
 *.user
 *.suo
 *.[Cc]ache
+
+#partcover stuff
+*PartCover*
