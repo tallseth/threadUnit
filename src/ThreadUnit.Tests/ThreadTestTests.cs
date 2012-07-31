@@ -75,6 +75,56 @@ namespace ThreadUnit.Tests
             }
             Assert.That(counter_.GetHits(), Is.EqualTo(numThreads));
         }
+        
+        [Test]
+        public void MultipleActionsInRoundRobinOrder()
+        {
+            var hitQueue = new Queue<string>();
+            Action first = ()=>hitQueue.Enqueue("first");
+            Action second = ()=>{Thread.Sleep(TimeSpan.FromMilliseconds(1000)); hitQueue.Enqueue("second");};
+            Action third = ()=>{Thread.Sleep(TimeSpan.FromMilliseconds(2000)); hitQueue.Enqueue("third");};
+            
+            ThreadTest.SimultaneousThreads(new []{first, second, third}, 3);
+            
+            Assert.That(hitQueue.Dequeue(), Is.EqualTo("first"));
+            Assert.That(hitQueue.Dequeue(), Is.EqualTo("second"));
+            Assert.That(hitQueue.Dequeue(), Is.EqualTo("third"));
+            Assert.That(hitQueue.Count, Is.EqualTo(0));
+        }
+        
+        [Test]
+        public void MultipleActionsRunCorrectNumberOfThreads_LessThreadsThanActions()
+        {
+            Action a = ()=>counter_.Touch();
+            Action b = ()=>counter_.Touch();
+            Action noCalls = ()=>{throw new Exception();};
+            
+            ThreadTest.SimultaneousThreads(new []{a, b, noCalls}, 2);
+            
+            Assert.That(counter_.GetHits(), Is.EqualTo(2));
+        }
+        
+        [Test]
+        public void MultipleActionsRunCorrectNumberOfThreads_MoreThreadsThanActions()
+        {
+            var calledOnce = false;
+            
+            Action a = ()=>counter_.Touch();
+            Action b = ()=>counter_.Touch();
+            Action oneCall = ()=>
+                                {
+                                    if(calledOnce)
+                                    {
+                                        throw new Exception();
+                                    }
+                                    calledOnce = true; 
+                                    counter_.Touch();
+                                };
+            
+            ThreadTest.SimultaneousThreads(new []{a, b, oneCall}, 5);
+            
+            Assert.That(counter_.GetHits(), Is.EqualTo(5));
+        }
 
         private void ThreadUnsafeOperation(object toLock)
         {
@@ -100,7 +150,6 @@ namespace ThreadUnit.Tests
         internal void Touch()
         {
             hits_++;
-            Console.WriteLine("touched " + hits_);
         }
 
         internal int GetHits()

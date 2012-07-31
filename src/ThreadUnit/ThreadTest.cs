@@ -6,15 +6,26 @@ namespace ThreadUnit
 {
     public static class ThreadTest
     {
+        private static readonly TimeSpan defaultTimeout_ = TimeSpan.FromHours(1);
+        
         public static void SimultaneousThreads(Action toTest, int numberOfThreads)
         {
-            SimultaneousThreads(toTest, numberOfThreads, TimeSpan.FromHours(1));
+            SimultaneousThreads(toTest, numberOfThreads, defaultTimeout_);
         }
-
 
         public static void SimultaneousThreads(Action toTest, int numberOfThreads, TimeSpan threadTimeout)
         {
-            TestRunner.GetInstance().RunTest(SimultaneousThreadTest.GetInstance(toTest, numberOfThreads, threadTimeout));
+            RunTest(SimultaneousThreadTest.GetInstance(toTest, numberOfThreads, threadTimeout));
+        }
+        
+        public static void SimultaneousThreads(IEnumerable<Action> actions, int numberOfThreads)
+        {
+            RunTest(SimultaneousThreadTest.GetInstance(actions, numberOfThreads, defaultTimeout_));
+        }
+        
+        private static void RunTest(Test toRun)
+        {
+            TestRunner.GetInstance().RunTest(toRun);
         }
     }
 }

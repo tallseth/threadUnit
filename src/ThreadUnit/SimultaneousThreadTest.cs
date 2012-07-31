@@ -1,24 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Linq;
 
 namespace ThreadUnit
 {
     internal class SimultaneousThreadTest : Test
     {
-        private readonly Action toTest_;
+        private readonly IEnumerable<Action> toTest_;
         private readonly int numberOfThreads_;
         private readonly TimeSpan joinTimeout_;
         private readonly object threadAbortState_ = new object();
 
-        private SimultaneousThreadTest(Action toTest, int numberOfThreads, TimeSpan joinTimeout)
+        private SimultaneousThreadTest(IEnumerable<Action> toTest, int numberOfThreads, TimeSpan joinTimeout)
         {
             toTest_ = toTest;
             numberOfThreads_ = numberOfThreads;
             joinTimeout_ = joinTimeout;
         }
-
+        
         internal static Test GetInstance(Action toTest, int numberOfThreads, TimeSpan joinTimeout)
+        {
+            return GetInstance(new []{toTest}, numberOfThreads, joinTimeout);
+        }
+
+        internal static Test GetInstance(IEnumerable<Action> toTest, int numberOfThreads, TimeSpan joinTimeout)
         {
             return new SimultaneousThreadTest(toTest, numberOfThreads, joinTimeout);
         }
@@ -27,10 +33,24 @@ namespace ThreadUnit
         {
             var result = new TestResult();
             var threads = new List<Thread>();
-            for (int i = 0; i < numberOfThreads_; i++)
+            
+            var threadCounter = 0;
+            
+            while(threadCounter < numberOfThreads_)
             {
-                threads.Add(new Thread(()=>RunTest(result.Exceptions)));
-            }
+                foreach (var action in toTest_) 
+                {
+                    var unmodifiedClosure = action;
+                    threads.Add(new Thread(()=>RunTest(result.Exceptions, unmodifiedClosure)));
+                    threadCounter++;
+                    if(threadCounter >= numberOfThreads_)
+                    {
+                        break;
+                    }
+                }
+                
+            } 
+            
             threads.ForEach(t=>t.Start());
             threads.ForEach(t=>ForceJoin(t, result));
 
@@ -47,11 +67,11 @@ namespace ThreadUnit
                 
         }
 
-        private void RunTest(ICollection<Exception> exceptions)
+        private void RunTest(ICollection<Exception> exceptions, Action testAction)
         {
             try
             {
-                toTest_();
+                testAction();
             }
             catch(ThreadAbortException)
             {
