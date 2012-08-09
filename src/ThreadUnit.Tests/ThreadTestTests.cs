@@ -1,4 +1,12 @@
-﻿using System;
+﻿// 
+// Author: Seth McCarthy
+// Copyright (c) 2012
+// 
+// Licensed under the Microsoft Public License (Ms-PL).
+// See the file LICENSE.txt for details.
+// 
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
