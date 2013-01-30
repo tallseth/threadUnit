@@ -83,6 +83,7 @@ namespace ThreadUnit
             }
             catch(ThreadAbortException)
             {
+                //TODO: should test the thread abort state before ignore this exception
                 Thread.ResetAbort();
             }
             catch(Exception ex)
