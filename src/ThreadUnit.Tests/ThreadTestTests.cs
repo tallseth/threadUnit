@@ -39,7 +39,6 @@ namespace ThreadUnit.Tests
             }
             catch (ThreadTestFailureException)
             {
-                
             }
 
             Assert.That(counter_.GetHits(), Is.EqualTo(numberOfThreads));

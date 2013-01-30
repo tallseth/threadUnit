@@ -81,10 +81,12 @@ namespace ThreadUnit
             {
                 testAction();
             }
-            catch(ThreadAbortException)
+            catch(ThreadAbortException ex)
             {
-                //TODO: should test the thread abort state before ignore this exception
-                Thread.ResetAbort();
+                if(ex.ExceptionState == threadAbortState_)
+                    Thread.ResetAbort();
+
+                throw;
             }
             catch(Exception ex)
             {
